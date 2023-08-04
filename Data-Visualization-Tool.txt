@@ -1,0 +1,135 @@
+import matplotlib.pyplot as plt
+import pandas as pd
+
+def visualize_data(data_series, plot_styles, marker_colors, title, xlabel, ylabel, plot_size, plot_bg_color,
+                   data_labels=False, legend_position='best', grid_style='dotted', font_size=12, save_path=None):
+    num_series = len(data_series)
+
+    # Set custom font size
+    plt.rcParams['font.size'] = font_size
+
+    # Set plot size
+    plt.figure(figsize=plot_size)
+
+    # Set plot background color
+    plt.gca().set_facecolor(plot_bg_color)
+
+    for i, series in enumerate(data_series):
+        # Set plot style and marker color for the current series
+        plot_style = plot_styles[i]
+        marker_color = marker_colors[i]
+
+        # Plot the data based on the chosen plot style
+        if plot_style == 'scatter':
+            plt.scatter(series['x'], series['y'], marker='o', color=marker_color, label=series['label'],
+                        edgecolors='black', s=100)
+        elif plot_style == 'line':
+            plt.plot(series['x'], series['y'], color=marker_color, linestyle='-', label=series['label'])
+        elif plot_style == 'bar':
+            plt.bar(series['x'], series['y'], color=marker_color, label=series['label'])
+
+        # Add data labels (optional)
+        if data_labels:
+            for (x, y) in zip(series['x'], series['y']):
+                plt.text(x, y, f'({x}, {y})', fontsize=9, ha='left', va='bottom')
+
+    # Add custom title and labels
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+
+    # Add grid lines with custom style
+    plt.grid(True, linestyle=grid_style)
+
+    # Add a legend with custom position
+    plt.legend(loc=legend_position)
+
+    # Save the plot as an image file (optional)
+    if save_path:
+        plt.savefig(save_path)
+
+    # Show the plot
+    plt.show()
+
+def save_data_to_excel(data_series, file_path):
+    writer = pd.ExcelWriter(file_path, engine='xlsxwriter')
+    for i, series in enumerate(data_series):
+        df = pd.DataFrame({'X-axis': series['x'], 'Y-axis': series['y']})
+        df.to_excel(writer, sheet_name=f'Series{i + 1}', index=False)
+    writer.save()
+    print(f"Data saved to Excel file: {file_path}")
+
+def main():
+    # Ask the user to choose the language for the prompts
+    lang = input("Choose your preferred language (English/Arabic): ")
+
+    # Ask the user to input the number of data series
+    num_series = int(input("Enter the number of data series: "))
+
+    data_series = []
+    plot_styles = []
+    marker_colors = []
+
+    for i in range(num_series):
+        series = {}
+        series['x'] = list(map(float, input(f"Enter data points for X-axis of series {i + 1} (comma-separated): ").split(',')))
+        series['y'] = list(map(float, input(f"Enter data points for Y-axis of series {i + 1} (comma-separated): ").split(',')))
+        series['label'] = input(f"Enter label for series {i + 1}: ")
+
+        data_series.append(series)
+
+        # Ask the user to input the plot style for the current data series
+        plot_styles.append(input(f"Enter plot style for series {i + 1} (scatter/line/bar): "))
+
+        # Ask the user to input the marker color for the current data series
+        marker_colors.append(input(f"Enter marker color for series {i + 1} (e.g., 'blue', 'red', 'green'): "))
+
+    if lang.lower() == 'arabic':
+        # Ask the user to input custom title and labels in Arabic
+        title = input("أدخل عنوان الرسم البياني: ")
+        xlabel = input("أدخل تسمية المحور السيني: ")
+        ylabel = input("أدخل تسمية المحور الصادي: ")
+        plot_bg_color = input("أدخل لون خلفية الرسم البياني: ")
+        legend_position = input("أدخل موضع العلامة التوضيحية (best, upper right, upper left, lower left, lower right, right, center left, center right, lower center, upper center, center): ")
+        grid_style = input("أدخل نمط خطوط الشبكة (solid, dashed, dotted): ")
+        font_size = int(input("أدخل حجم الخط: "))
+        plot_width = float(input("أدخل عرض الرسم البياني: "))
+        plot_height = float(input("أدخل ارتفاع الرسم البياني: "))
+        save_excel = input("هل ترغب في تحميل البيانات في ملف Excel؟ (نعم/لا): ")
+        data_labels = input("هل ترغب في عرض تسميات البيانات على الرسم البياني؟ (نعم/لا): ")
+    else:
+        # Ask the user to input custom title and labels in English
+        title = input("Enter the chart title: ")
+        xlabel = input("Enter X-axis label: ")
+        ylabel = input("Enter Y-axis label: ")
+        plot_bg_color = input("Enter the plot background color: ")
+        legend_position = input("Enter the legend position (best, upper right, upper left, lower left, lower right, right, center left, center right, lower center, upper center, center): ")
+        grid_style = input("Enter the grid lines style (solid, dashed, dotted): ")
+        font_size = int(input("Enter font size: "))
+        plot_width = float(input("Enter the plot width: "))
+        plot_height = float(input("Enter the plot height: "))
+        save_excel = input("Do you want to save the data to an Excel file? (yes/no): ")
+        data_labels = input("Do you want to display data labels on the plot? (yes/no): ")
+
+    # Set plot size
+    plot_size = (plot_width, plot_height)
+
+    # Call the function to visualize the data with the specified features
+    visualize_data(data_series, plot_styles, marker_colors, title, xlabel, ylabel, plot_size, plot_bg_color,
+                   data_labels=data_labels.lower() == 'yes', legend_position=legend_position, grid_style=grid_style,
+                   font_size=font_size)
+
+    # Optionally, save the plot as an image file
+    save_path = input("Do you want to save the plot as an image file? Enter the file path (Press Enter if no): ")
+    if save_path:
+        visualize_data(data_series, plot_styles, marker_colors, title, xlabel, ylabel, plot_size, plot_bg_color,
+                       data_labels=data_labels.lower() == 'yes', legend_position=legend_position, grid_style=grid_style,
+                       font_size=font_size, save_path=save_path)
+
+    # Optionally, save the data to an Excel file
+    if save_excel.lower() == 'yes':
+        excel_path = input("Enter the Excel file path for saving the data: ")
+        save_data_to_excel(data_series, excel_path)
+
+if __name__ == "__main__":
+    main()
